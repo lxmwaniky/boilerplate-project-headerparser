@@ -1,30 +1,45 @@
-// index.js
-// where your node app starts
+require("dotenv").config();
 
-// init project
-require('dotenv').config();
-var express = require('express');
-var app = express();
+const express = require("express");
+const app = express();
 
-// enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC
-var cors = require('cors');
+const cors = require("cors");
 app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 204
 
-// http://expressjs.com/en/starter/static-files.html
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-// http://expressjs.com/en/starter/basic-routing.html
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/views/index.html');
+app.get("/", function (req, res) {
+  res.sendFile(__dirname + "/views/index.html");
 });
 
-// your first API endpoint...
-app.get('/api/hello', function (req, res) {
-  res.json({ greeting: 'hello API' });
+// whoami endpoint
+app.get("/api/whoami", function (req, res) {
+  res.json(whoami(req));
 });
 
-// listen for requests :)
-var listener = app.listen(process.env.PORT || 3000, function () {
-  console.log('Your app is listening on port ' + listener.address().port);
+const listener = app.listen(process.env.PORT || 3000, function () {
+  console.log("Your app is listening on port " + listener.address().port);
 });
+
+/**
+ *
+ * @typedef {Object} Whoami
+ * @property {string} ipaddress - Client ip address
+ * @property {string} language - Client languages
+ * @property {string} software - Client browser and software
+ *
+ */
+/**
+ *
+ * @param {*} headers  Express.js request object
+ * @returns {Whoami}  Response with client header information
+ */
+function whoami(request) {
+  const { headers, ip } = request;
+
+  return {
+    ipaddress: ip,
+    language: headers["accept-language"],
+    software: headers["user-agent"],
+  };
+}
